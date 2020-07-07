@@ -34,6 +34,7 @@ jobs:
         run: yarn install --check-files
 
       - uses: SonicGarden/webpacker-compile-action@v1
+        id: webpacker-compile
 
       - name: Setup database
         run: |
@@ -42,4 +43,8 @@ jobs:
 
       - name: Run rspec
         run: bin/rspec
+
+      - name: size-limit
+        if: steps.webpacker-compile.outputs.cache-hit != 'true'
+        run: yarn size-limit
 ```
