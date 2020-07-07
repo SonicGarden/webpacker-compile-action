@@ -1,13 +1,16 @@
-import cache from '@actions/cache'
+import * as cache from '@actions/cache'
 import * as core from '@actions/core'
 import execa from 'execa'
 
 async function run(): Promise<void> {
   try {
     const cacheKeyPrefix: string = core.getInput('cacheKeyPrefix')
-    const {stdout} = await execa.command(
-      "bundle exec rails runner 'puts Webpacker.compiler.send(:watched_files_digest)'"
-    )
+    const {stdout} = await execa('bundle', [
+      'exec',
+      'rails',
+      'runner',
+      'puts Webpacker.compiler.send(:watched_files_digest)'
+    ])
     const key = `${cacheKeyPrefix}-${stdout}`
 
     const paths = ['tmp/cache/webpacker', 'public/packs', 'public/packs-test']

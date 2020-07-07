@@ -3262,23 +3262,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const cache_1 = __importDefault(__webpack_require__(692));
+const cache = __importStar(__webpack_require__(692));
 const core = __importStar(__webpack_require__(470));
 const execa_1 = __importDefault(__webpack_require__(955));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const cacheKeyPrefix = core.getInput('cacheKeyPrefix');
-            const { stdout } = yield execa_1.default.command("bundle exec rails runner 'puts Webpacker.compiler.send(:watched_files_digest)'");
+            const { stdout } = yield execa_1.default('bundle', [
+                'exec',
+                'rails',
+                'runner',
+                'puts Webpacker.compiler.send(:watched_files_digest)'
+            ]);
             const key = `${cacheKeyPrefix}-${stdout}`;
             const paths = ['tmp/cache/webpacker', 'public/packs', 'public/packs-test'];
-            const cacheKey = yield cache_1.default.restoreCache(paths, key);
+            const cacheKey = yield cache.restoreCache(paths, key);
             if (cacheKey) {
                 core.debug(`cache hit: ${cacheKey}`);
                 return;
             }
             yield execa_1.default.command('bundle exec rake webpacker:compile');
-            const cacheId = yield cache_1.default.saveCache(paths, key);
+            const cacheId = yield cache.saveCache(paths, key);
             core.debug(`cache saved: ${cacheId}`);
         }
         catch (error) {
