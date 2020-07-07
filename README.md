@@ -7,6 +7,7 @@ Webpacker compile with cache
 ### Inputs
 
 - `cacheKeyPrefix` - Cache key prefix. (default: `webpacker-compile`)
+- `compileCommand` - Webpacker compile command. (default: `bin/rake webpacker:compile`)
 
 ## Example
 

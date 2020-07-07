@@ -3283,7 +3283,7 @@ function run() {
             });
             const railsEnv = process.env.RAILS_ENV || 'development';
             const key = `${cacheKeyPrefix}-${railsEnv}-${digest}`;
-            const paths = ['public/packs', 'public/packs-test'];
+            const paths = ['public/packs', 'public/packs-test', 'tmp/cache/webpacker'];
             const cacheKey = yield cache.restoreCache(paths, key);
             const cacheHit = !!cacheKey;
             core.setOutput('cache-hit', cacheHit.toString());
@@ -3291,18 +3291,29 @@ function run() {
                 core.debug(`cache hit: ${cacheKey}`);
                 return;
             }
-            yield execa_1.default('bin/webpack');
-            const cacheId = yield cache.saveCache(paths, key);
-            core.debug(`cache saved: ${cacheId}`);
+            const compileCommand = core.getInput('compileCommand', {
+                required: true
+            });
+            yield execa_1.default.command(compileCommand);
+            // Error handling from https://github.com/actions/cache/blob/master/src/save.ts
+            core.info('Saving cache');
+            try {
+                yield cache.saveCache(paths, key);
+            }
+            catch (error) {
+                if (error.name === cache.ValidationError.name) {
+                    throw error;
+                }
+                else if (error.name === cache.ReserveCacheError.name) {
+                    core.info(error.message);
+                }
+                else {
+                    core.info(`[warning]${error.message}`);
+                }
+            }
         }
         catch (error) {
-            if (error instanceof Error &&
-                error.message.includes('reserveCache failed')) {
-                core.warning(error.message);
-            }
-            else {
-                core.setFailed(error.message);
-            }
+            core.setFailed(error.message);
         }
     });
 }
