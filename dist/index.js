@@ -3276,7 +3276,11 @@ function run() {
                 'rails',
                 'runner',
                 'puts Webpacker.compiler.send(:watched_files_digest)'
-            ]);
+            ], {
+                env: {
+                    RAILS_ENV: 'test'
+                }
+            });
             const railsEnv = process.env.RAILS_ENV || 'development';
             const key = `${cacheKeyPrefix}-${railsEnv}-${digest}`;
             const paths = ['public/packs', 'public/packs-test'];

@@ -7,12 +7,20 @@ async function run(): Promise<void> {
     const cacheKeyPrefix: string = core.getInput('cacheKeyPrefix', {
       required: true
     })
-    const {stdout: digest} = await execa('bundle', [
-      'exec',
-      'rails',
-      'runner',
-      'puts Webpacker.compiler.send(:watched_files_digest)'
-    ])
+    const {stdout: digest} = await execa(
+      'bundle',
+      [
+        'exec',
+        'rails',
+        'runner',
+        'puts Webpacker.compiler.send(:watched_files_digest)'
+      ],
+      {
+        env: {
+          RAILS_ENV: 'test'
+        }
+      }
+    )
 
     const railsEnv = process.env.RAILS_ENV || 'development'
     const key = `${cacheKeyPrefix}-${railsEnv}-${digest}`
