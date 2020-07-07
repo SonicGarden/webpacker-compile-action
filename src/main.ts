@@ -27,7 +27,14 @@ async function run(): Promise<void> {
     const cacheId = await cache.saveCache(paths, key)
     core.debug(`cache saved: ${cacheId}`)
   } catch (error) {
-    core.setFailed(error.message)
+    if (
+      error instanceof Error &&
+      error.message.includes('reserveCache failed')
+    ) {
+      core.warning(error.message)
+    } else {
+      core.setFailed(error.message)
+    }
   }
 }
 

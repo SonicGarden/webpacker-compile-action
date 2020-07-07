@@ -3288,7 +3288,13 @@ function run() {
             core.debug(`cache saved: ${cacheId}`);
         }
         catch (error) {
-            core.setFailed(error.message);
+            if (error instanceof Error &&
+                error.message.includes('reserveCache failed')) {
+                core.warning(error.message);
+            }
+            else {
+                core.setFailed(error.message);
+            }
         }
     });
 }
