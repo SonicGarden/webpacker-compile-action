@@ -3268,22 +3268,26 @@ const execa_1 = __importDefault(__webpack_require__(955));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const cacheKeyPrefix = core.getInput('cacheKeyPrefix');
-            const { stdout } = yield execa_1.default('bundle', [
+            const cacheKeyPrefix = core.getInput('cacheKeyPrefix', {
+                required: true
+            });
+            const { stdout: digest } = yield execa_1.default('bundle', [
                 'exec',
                 'rails',
                 'runner',
                 'puts Webpacker.compiler.send(:watched_files_digest)'
             ]);
             const railsEnv = process.env.RAILS_ENV || 'development';
-            const key = `${cacheKeyPrefix}-${railsEnv}-${stdout}`;
-            const paths = ['tmp/cache/webpacker', 'public/packs', 'public/packs-test'];
+            const key = `${cacheKeyPrefix}-${railsEnv}-${digest}`;
+            const paths = ['public/packs', 'public/packs-test'];
             const cacheKey = yield cache.restoreCache(paths, key);
+            const cacheHit = !!cacheKey;
+            core.setOutput('cache-hit', cacheHit.toString());
             if (cacheKey) {
                 core.debug(`cache hit: ${cacheKey}`);
                 return;
             }
-            yield execa_1.default.command('bundle exec rake webpacker:compile');
+            yield execa_1.default('bin/webpack');
             const cacheId = yield cache.saveCache(paths, key);
             core.debug(`cache saved: ${cacheId}`);
         }

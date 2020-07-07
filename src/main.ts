@@ -4,8 +4,10 @@ import execa from 'execa'
 
 async function run(): Promise<void> {
   try {
-    const cacheKeyPrefix: string = core.getInput('cacheKeyPrefix')
-    const {stdout} = await execa('bundle', [
+    const cacheKeyPrefix: string = core.getInput('cacheKeyPrefix', {
+      required: true
+    })
+    const {stdout: digest} = await execa('bundle', [
       'exec',
       'rails',
       'runner',
@@ -13,17 +15,20 @@ async function run(): Promise<void> {
     ])
 
     const railsEnv = process.env.RAILS_ENV || 'development'
-    const key = `${cacheKeyPrefix}-${railsEnv}-${stdout}`
+    const key = `${cacheKeyPrefix}-${railsEnv}-${digest}`
 
-    const paths = ['tmp/cache/webpacker', 'public/packs', 'public/packs-test']
+    const paths = ['public/packs', 'public/packs-test']
 
     const cacheKey = await cache.restoreCache(paths, key)
+    const cacheHit = !!cacheKey
+    core.setOutput('cache-hit', cacheHit.toString())
+
     if (cacheKey) {
       core.debug(`cache hit: ${cacheKey}`)
       return
     }
 
-    await execa.command('bundle exec rake webpacker:compile')
+    await execa('bin/webpack')
     const cacheId = await cache.saveCache(paths, key)
     core.debug(`cache saved: ${cacheId}`)
   } catch (error) {

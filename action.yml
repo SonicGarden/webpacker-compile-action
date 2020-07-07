@@ -5,6 +5,9 @@ inputs:
   cacheKeyPrefix:
     description: "Cache key prefix"
     default: "webpacker-compile"
+outputs:
+  cache-hit:
+    description: "A boolean value to indicate an exact match was found for the primary key"
 runs:
   using: "node12"
   main: "dist/index.js"
