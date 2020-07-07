@@ -1,10 +1,10 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "Webpacker compile"
+description: "Webpacker compile with cache"
+author: "aki77"
 inputs:
-  myInput:              # change this
-    description: 'input description here'
-    default: 'default value if applicable'
+  cacheKeyPrefix:
+    description: "Cache key prefix"
+    default: "webpacker-compile"
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"
