@@ -11,7 +11,9 @@ async function run(): Promise<void> {
       'runner',
       'puts Webpacker.compiler.send(:watched_files_digest)'
     ])
-    const key = `${cacheKeyPrefix}-${stdout}`
+
+    const railsEnv = process.env.RAILS_ENV || 'development'
+    const key = `${cacheKeyPrefix}-${railsEnv}-${stdout}`
 
     const paths = ['tmp/cache/webpacker', 'public/packs', 'public/packs-test']
 
