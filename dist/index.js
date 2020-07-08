@@ -3278,7 +3278,11 @@ function run() {
                 'puts Webpacker.compiler.send(:watched_files_digest)'
             ], {
                 env: {
-                    RAILS_ENV: 'test'
+                    RAILS_ENV: 'test',
+                    DISABLE_SPRING: '1',
+                    DATABASE_URL: 
+                    // NOTE: dummy settings
+                    'postgresql://postgres:postgres@localhost:5432/postgres?encoding=utf8&pool=5&timeout=5000'
                 }
             });
             const railsEnv = process.env.RAILS_ENV || 'development';
