@@ -27,7 +27,7 @@ async function run(): Promise<void> {
     const compileCommand = core.getInput('compileCommand', {
       required: true
     })
-    const paths = ['public/packs', 'public/packs-test', 'tmp/cache/webpacker']
+    const paths = core.getInput('cachePaths', {required: true}).split('\n')
 
     const key = [
       core.getInput('cacheKeyPrefix', {required: true}),
