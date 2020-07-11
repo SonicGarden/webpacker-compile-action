@@ -1,12 +1,10 @@
 import * as cache from '@actions/cache'
 import * as core from '@actions/core'
+import slugify from '@sindresorhus/slugify'
 import execa from 'execa'
 
 async function run(): Promise<void> {
   try {
-    const cacheKeyPrefix = core.getInput('cacheKeyPrefix', {
-      required: true
-    })
     const {stdout: digest} = await execa(
       'bundle',
       [
@@ -26,10 +24,17 @@ async function run(): Promise<void> {
       }
     )
 
-    const railsEnv = process.env.RAILS_ENV || 'development'
-    const key = `${cacheKeyPrefix}-${railsEnv}-${digest}`
+    const compileCommand = core.getInput('compileCommand', {
+      required: true
+    })
+    const paths = core.getInput('cachePaths', {required: true}).split('\n')
 
-    const paths = ['public/packs', 'public/packs-test', 'tmp/cache/webpacker']
+    const key = [
+      core.getInput('cacheKeyPrefix', {required: true}),
+      process.env.RAILS_ENV || 'development',
+      slugify(compileCommand),
+      digest
+    ].join('-')
 
     const cacheKey = await cache.restoreCache(paths, key)
     const cacheHit = !!cacheKey
@@ -40,9 +45,6 @@ async function run(): Promise<void> {
       return
     }
 
-    const compileCommand = core.getInput('compileCommand', {
-      required: true
-    })
     await execa.command(compileCommand)
 
     // Error handling from https://github.com/actions/cache/blob/master/src/save.ts

@@ -8,6 +8,12 @@ inputs:
   compileCommand:
     description: "Webpacker compile command"
     default: "bin/rake webpacker:compile"
+  cachePaths:
+    description: "Cache paths"
+    default: |
+      public/packs
+      public/packs-test
+      tmp/cache/webpacker
 outputs:
   cache-hit:
     description: "A boolean value to indicate an exact match was found for the primary key"
