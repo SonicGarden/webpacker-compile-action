@@ -1,7 +1,8 @@
+/* eslint-disable i18n-text/no-en */
 import * as cache from '@actions/cache'
 import * as core from '@actions/core'
-import slugify from '@sindresorhus/slugify'
 import execa from 'execa'
+import slugify from '@sindresorhus/slugify'
 
 async function run(): Promise<void> {
   try {
@@ -49,16 +50,20 @@ async function run(): Promise<void> {
     try {
       await cache.saveCache(paths, key)
     } catch (error) {
-      if (error.name === cache.ValidationError.name) {
-        throw error
-      } else if (error.name === cache.ReserveCacheError.name) {
-        core.info(error.message)
-      } else {
-        core.info(`[warning]${error.message}`)
+      if (error instanceof Error) {
+        if (error.name === cache.ValidationError.name) {
+          throw error
+        } else if (error.name === cache.ReserveCacheError.name) {
+          core.info(error.message)
+        } else {
+          core.info(`[warning]${error.message}`)
+        }
       }
     }
   } catch (error) {
-    core.setFailed(error.message)
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    }
   }
 }
 
